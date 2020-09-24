@@ -1,0 +1,17 @@
+version: '3.7'
+
+services:
+
+  geohut:
+    image: geohutnode
+    restart: unless-stopped
+    container_name: geohutnode
+    build: ./
+    ports:
+      - 3002:3002
+
+      
+networks:
+  default:
+    external:
+      name: my-net
