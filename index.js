@@ -80,11 +80,14 @@ app.get('/sites',  function(req,res){
 
 
 //request all checkins (temp)
-app.get('/players',  function(req,res){
-    var sql = "SELECT * FROM geohut_sport.check_ins;";
+app.get('/players/:playgroundId',  function(req,res){
+    var playgroundId = req.params.playgroundId;
+    var sql = "SELECT * FROM geohut_sport.check_ins where site_id = '"+playgroundId+"';";
     pool.query(sql, function(err, results) {
         if(err) {
+            console.log(res.send(err))
             return res.send(err)
+
         } else {
             return res.json({
                 data: results
