@@ -290,6 +290,45 @@ app.post('/add',  cors(), (req, res) => {
 });
 
 
+
+
+//Remove records
+app.delete('/delete',  cors(), (req, res) => {
+    //current_time = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
+
+    var my_data = {
+        site_id: req.query.site_id,
+
+        user_id: req.query.user_id
+       }
+  
+       // now the createStudent is an object you can use in your database insert logic.
+       var sql = "DELETE FROM geohut_sport.check_ins WHERE site_id = '"+my_data.site_id+"' and user_id = '"+my_data.user_id+"'";
+       pool.query(sql, function (err, result) {
+    if (err) throw err;
+    console.log("Number of records deleted: " + result.affectedRows);
+  });
+});
+
+
+//Automatic removal 
+setInterval(() => {
+    console.log(moment().utcOffset('-0500').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0')
+    let timestamp = moment().utcOffset('-0500').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
+  
+    var sql = "DELETE FROM geohut_sport.check_ins WHERE DATE_ADD(checkin_datetime, INTERVAL 3 HOUR) < '"+timestamp+"'";
+    pool.query(sql, function (err, result) {
+ if (err) throw err;
+ console.log("Number of records deleted: " + result.affectedRows);
+});
+
+  }, 300000);
+  
+
+
+
+
+
 //set server to listen 
 app.listen(port,()=>console.log(`Express Server is Running on port 3002 ${port}`));
 
