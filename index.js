@@ -11,7 +11,7 @@ const moment = require('moment');
 //pooled
 //https://medium.com/@carloscuba014/building-a-react-app-that-connects-to-mysql-via-nodejs-using-docker-a8acbb0e9788
 
-const port = 3002;
+const port = 3007;
 const app = express();
 // call cors
 app.use(cors()); //attempting disable for caddy 
@@ -330,5 +330,5 @@ setInterval(() => {
 
 
 //set server to listen 
-app.listen(port,()=>console.log(`Express Server is Running on port 3002 ${port}`));
+app.listen(port,()=>console.log(`Express Server is Running on port 3007 ${port}`));
 
