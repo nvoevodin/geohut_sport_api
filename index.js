@@ -290,6 +290,34 @@ app.post('/add',  cors(), (req, res) => {
 });
 
 
+
+app.post('/preCheck',  cors(), (req, res) => {
+    //current_time = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
+    var my_data = {
+        site_id: req.query.site_id,
+        pre_checkin_datetime: req.query.time,
+        first_name: req.query.first_name,
+        last_name: req.query.last_name,
+        user_id: req.query.user_id
+       }
+       // now the createStudent is an object you can use in your database insert logic.
+       pool.query('INSERT INTO geohut_sport.pre_check_ins SET ?', my_data, function (err, results) {
+        if(err) {
+            console.log(err)
+            return res.send(err)
+            
+        } else {
+            console.log(results)
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
+
+
+
+
 //rest api to update record into mysql database
 app.put('/update', cors(), (req, res) => {
 
@@ -352,6 +380,24 @@ app.delete('/delete',  cors(), (req, res) => {
   
        // now the createStudent is an object you can use in your database insert logic.
        var sql = "DELETE FROM geohut_sport.check_ins WHERE site_id = '"+my_data.site_id+"' and user_id = '"+my_data.user_id+"'";
+       pool.query(sql, function (err, result) {
+    if (err) throw err;
+    console.log("Number of records deleted: " + result.affectedRows);
+  });
+});
+
+
+app.delete('/cancelPreCheck',  cors(), (req, res) => {
+    //current_time = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
+
+    var my_data = {
+        site_id: req.query.site_id,
+
+        user_id: req.query.user_id
+       }
+  
+       // now the createStudent is an object you can use in your database insert logic.
+       var sql = "DELETE FROM geohut_sport.pre_check_ins WHERE site_id = '"+my_data.site_id+"' and user_id = '"+my_data.user_id+"'";
        pool.query(sql, function (err, result) {
     if (err) throw err;
     console.log("Number of records deleted: " + result.affectedRows);
