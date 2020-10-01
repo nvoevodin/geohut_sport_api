@@ -290,6 +290,54 @@ app.post('/add',  cors(), (req, res) => {
 });
 
 
+//rest api to update record into mysql database
+app.put('/update', cors(), (req, res) => {
+
+    let timestamp = moment().utcOffset('-0500').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
+    var my_data = {
+        site_id: req.query.site_id,
+
+        user_id: req.query.user_id
+       }
+
+       var sql = "UPDATE geohut_sport.check_ins SET checkout_datetime= '"+timestamp+"' where site_id = '"+my_data.site_id+"' and user_id = '"+my_data.user_id+"'";
+
+       pool.query(sql, function (err, result) {
+        if (err) throw err;
+        res.end(JSON.stringify(result));
+      });
+ });
+
+
+
+
+
+ //POST TO DATABASE
+app.post('/addToStorage',  cors(), async (req, res) => {
+
+
+    //current_time = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
+        var my_data = {
+        site_id: req.query.site_id,
+
+        user_id: req.query.user_id
+       }
+       // now the createStudent is an object you can use in your database insert logic.
+       await pool.query("INSERT INTO geohut_sport.check_ins_storage select * from geohut_sport.check_ins where site_id = '"+my_data.site_id+"' and user_id = '"+my_data.user_id+"'", function (err, results) {
+        if(err) {
+            console.log(err)
+            return res.send(err)
+            
+        } else {
+            console.log(results)
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
+
+
 
 
 //Remove records
@@ -315,14 +363,44 @@ app.delete('/delete',  cors(), (req, res) => {
 setInterval(() => {
     console.log(moment().utcOffset('-0500').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0')
     let timestamp = moment().utcOffset('-0500').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
-  
-    var sql = "DELETE FROM geohut_sport.check_ins WHERE DATE_ADD(checkin_datetime, INTERVAL 3 HOUR) < '"+timestamp+"'";
-    pool.query(sql, function (err, result) {
- if (err) throw err;
- console.log("Number of records deleted: " + result.affectedRows);
-});
+
+
+
+       pool.query("UPDATE geohut_sport.check_ins SET checkout_datetime= '"+timestamp+"' WHERE DATE_ADD(checkin_datetime, INTERVAL 3 HOUR) < '"+timestamp+"'", function (err, result) {
+        console.log('update')
+        
+        if (err) {throw err}
+        else {
+            pool.query("INSERT INTO geohut_sport.check_ins_storage select * from geohut_sport.check_ins where DATE_ADD(checkin_datetime, INTERVAL 3 HOUR) < '"+timestamp+"'", function (err, results) {
+                console.log('insert')
+                
+                if (err) {throw err}
+                else {
+                    pool.query("DELETE FROM geohut_sport.check_ins WHERE DATE_ADD(checkin_datetime, INTERVAL 3 HOUR) < '"+timestamp+"'", function (err, result) {
+                        console.log('delete')
+                 if (err) throw err;
+                 console.log("Number of records deleted: " + result.affectedRows);
+                });
+                };
+            });
+        };
+        
+      });
+
+
+
+
+
+
+    
+
 
   }, 300000);
+
+
+
+
+
   
 
 
