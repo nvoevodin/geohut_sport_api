@@ -15,6 +15,6 @@ COPY ./ /app
 # Create app directory
 WORKDIR /app
 
-EXPOSE 3002
+EXPOSE 3007
 
 CMD node index.js

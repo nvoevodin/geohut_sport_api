@@ -3,12 +3,12 @@ version: '3.7'
 services:
 
   geohut:
-    image: geohutnode
+    image: volleybuddy_api
     restart: unless-stopped
-    container_name: geohutnode
+    container_name: volleybuddy_api
     build: ./
     ports:
-      - 3002:3002
+      - 3007:3007
 
       
 networks:
