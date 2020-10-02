@@ -96,6 +96,23 @@ app.get('/players/:playgroundId',  function(req,res){
     });
 });
 
+
+app.get('/pre_checks/:playgroundId',  function(req,res){
+    var playgroundId = req.params.playgroundId;
+    var sql = "SELECT * FROM geohut_sport.pre_check_ins where site_id = '"+playgroundId+"';";
+    pool.query(sql, function(err, results) {
+        if(err) {
+            console.log(res.send(err))
+            return res.send(err)
+
+        } else {
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
+
 //validate registree can sign up by looking them up match on email/phone
 //  app.get('/validate/:email',  cors(),function(req,res){
 //      var email = req.params.email;
@@ -407,8 +424,8 @@ app.delete('/cancelPreCheck',  cors(), (req, res) => {
 
 //Automatic removal 
 setInterval(() => {
-    console.log(moment().utcOffset('-0500').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0')
-    let timestamp = moment().utcOffset('-0500').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
+    console.log(moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0')
+    let timestamp = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
 
 
 
@@ -435,13 +452,31 @@ setInterval(() => {
 
 
 
+            pool.query("INSERT INTO geohut_sport.pre_check_ins_storage select * from geohut_sport.pre_check_ins where DATE_ADD(pre_checkin_datetime, INTERVAL 30 MINUTE) < '"+timestamp+"'", function (err, results) {
+                console.log('insert pre')
+                
+                if (err) {throw err}
+                else {
+                    pool.query("DELETE FROM geohut_sport.pre_check_ins WHERE DATE_ADD(pre_checkin_datetime, INTERVAL 30 MINUTE) < '"+timestamp+"'", function (err, result) {
+                        console.log('delete pre')
+                 if (err) throw err;
+                 console.log("Number of records deleted: " + result.affectedRows);
+                });
+                };
+            });
+        
+        
+     
+
+
+
 
 
 
     
 
 
-  }, 30000);
+  }, 300000);
 
 
 
