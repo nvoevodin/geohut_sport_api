@@ -422,6 +422,21 @@ app.delete('/cancelPreCheck',  cors(), (req, res) => {
 });
 
 
+//request all construction sites
+app.get('/tracking',  function(req,res){
+    var sql = "SELECT * FROM geohut_sport.trackingTest ORDER BY date_time LIMIT 10;";
+    pool.query(sql, function(err, results) {
+        if(err) {
+            return res.send(err)
+        } else {
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
+
+
 //Automatic removal 
 setInterval(() => {
     console.log(moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0')
