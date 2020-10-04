@@ -422,7 +422,7 @@ app.delete('/cancelPreCheck',  cors(), (req, res) => {
 });
 
 
-//request all construction sites
+//request all tracking info
 app.get('/tracking',  cors(), function(req,res){
     var sql = "SELECT * FROM geohut_sport.trackingTest ORDER BY date_time LIMIT 10;";
     pool.query(sql, function(err, results) {
@@ -435,6 +435,33 @@ app.get('/tracking',  cors(), function(req,res){
         }
     });
 });
+
+//post  all tracking info
+app.post('/addTracking',  cors(), async (req, res) => {
+
+
+    let timestamp = moment().utcOffset('-0500').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
+    var my_data = {
+        date_time: req.query.datetime,
+        latitude: req.query.latitude,
+        longitude: req.query.longitude
+       }
+       
+       pool.query('INSERT INTO geohut_sport.trackingTest SET ?', my_data, function (err, results) {
+        if(err) {
+            console.log(err)
+            return res.send(err)
+            
+        } else {
+            console.log(results)
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
+
+
 
 
 //Automatic removal 
