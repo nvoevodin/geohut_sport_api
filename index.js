@@ -461,6 +461,44 @@ app.post('/addTracking',  cors(), async (req, res) => {
     });
 });
 
+//request fencing
+app.get('/fencing',  cors(), function(req,res){
+    var sql = "SELECT * FROM geohut_sport.fencingTest;";
+    pool.query(sql, function(err, results) {
+        if(err) {
+            return res.send(err)
+        } else {
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
+
+//post fencing
+app.post('/addFencing',  cors(), async (req, res) => {
+
+
+    let timestamp = moment().utcOffset('-0500').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
+    var my_data = {
+        date_time: req.query.datetime,
+        event_type: req.query.eventtype
+       }
+       
+       pool.query('INSERT INTO geohut_sport.fencingTest SET ?', my_data, function (err, results) {
+        if(err) {
+            console.log(err)
+            return res.send(err)
+            
+        } else {
+            console.log(results)
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
+
 
 
 
