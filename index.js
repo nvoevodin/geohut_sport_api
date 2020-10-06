@@ -308,6 +308,35 @@ app.post('/add',  cors(), (req, res) => {
 
 
 
+//ADD PLAYGROUND
+app.post('/addPlayground',  cors(), (req, res) => {
+    //current_time = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
+    var my_data = {
+        
+        
+        name: req.query.name,
+        address: req.query.address,
+        lat: req.query.latitude,
+        lon: req.query.longitude
+       }
+
+       // now the createStudent is an object you can use in your database insert logic.
+       pool.query("INSERT INTO geohut_sport.playgrounds_queue (site_id,site_name,site_address,latitude,longitude) values (uuid(),'"+my_data.name+"','"+my_data.address+"','"+my_data.lat+"','"+my_data.lon+"')", function (err, results) {
+        if(err) {
+            console.log(err)
+            return res.send(err)
+            
+        } else {
+            console.log(results)
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
+
+
+
 app.post('/preCheck',  cors(), (req, res) => {
     //current_time = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
     var my_data = {
