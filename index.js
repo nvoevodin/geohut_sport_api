@@ -16,7 +16,13 @@ const app = express();
 // call cors
 app.use(cors()); //attempting disable for caddy 
 
+let timestamp = moment().utcOffset('-0500').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
+    console.log(timestamp + 'utc')
 
+
+    var current_time = moment().format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
+
+    console.log(current_time + 'no UTC')
 
 //original connection test (just to test connection since pool has no method)------------------------------
 // var con = mysql.createConnection({
@@ -367,7 +373,7 @@ app.post('/preCheck',  cors(), (req, res) => {
 //rest api to update record into mysql database
 app.put('/update', cors(), (req, res) => {
 
-    let timestamp = moment().utcOffset('-0500').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
+    
     var my_data = {
         site_id: req.query.site_id,
 
@@ -390,7 +396,7 @@ app.put('/update', cors(), (req, res) => {
 app.post('/addToStorage',  cors(), async (req, res) => {
 
 
-    //current_time = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
+  
         var my_data = {
         site_id: req.query.site_id,
 
@@ -469,7 +475,7 @@ app.get('/tracking',  cors(), function(req,res){
 app.post('/addTracking',  cors(), async (req, res) => {
 
 
-    let timestamp = moment().utcOffset('-0500').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
+    let timestamp = moment().format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
     var my_data = {
         date_time: req.query.datetime,
         latitude: req.query.latitude,
@@ -508,7 +514,7 @@ app.get('/fencing',  cors(), function(req,res){
 app.post('/addFencing',  cors(), async (req, res) => {
 
 
-    let timestamp = moment().utcOffset('-0500').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
+    let timestamp = moment().format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
     var my_data = {
         date_time: req.query.datetime,
         event_type: req.query.eventtype
@@ -533,8 +539,8 @@ app.post('/addFencing',  cors(), async (req, res) => {
 
 //Automatic removal 
 setInterval(() => {
-    console.log(moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0')
-    let timestamp = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
+    console.log(moment().format("YYYY-MM-DD HH:mm:ss").substr(0, 18) + "0")
+    let timestamp = moment().format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
 
 
 
