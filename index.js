@@ -517,6 +517,7 @@ app.post('/addFencing',  cors(), async (req, res) => {
     let timestamp = moment().format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
     var my_data = {
         date_time: req.query.datetime,
+        region: req.query.region,
         event_type: req.query.eventtype
        }
        
