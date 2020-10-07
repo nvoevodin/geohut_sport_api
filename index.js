@@ -198,22 +198,22 @@ app.get('/pre_checks/:playgroundId',  function(req,res){
 ////PRECHECK CHECK
 
  //pull historical checkins in profile by user id
-//  app.get('/precheckcheck/:uid',  cors(),function(req,res){
-//     var uid = req.params.uid;
+ app.get('/precheckcheck/:uid',  cors(),function(req,res){
+    var uid = req.params.uid;
     
-//     var sql = "SELECT site_id, checkin_date_time FROM proBono.check_ins WHERE checkin_type = 1 and user_id = '"+uid+"' ORDER BY checkin_date_time DESC LIMIT 10";
-//     pool.query(sql, uid, function(err, results) {
-//         if(err) {
+    var sql = "SELECT site_id FROM geohut_sport.pre_check_ins WHERE user_id = '"+uid+"'";
+    pool.query(sql, uid, function(err, results) {
+        if(err) {
 
-//             return res.send(err)
-//         } else {
+            return res.send(err)
+        } else {
            
-//             return res.json({
-//                 data: results
-//             })
-//         }
-//     });
-// });
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
 
 
 
