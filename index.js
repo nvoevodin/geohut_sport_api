@@ -16,13 +16,13 @@ const app = express();
 // call cors
 app.use(cors()); //attempting disable for caddy 
 
-let timestamp = moment().utcOffset('-0500').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
+let timestamp = moment().utc().format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
     console.log(timestamp + 'utc')
 
 
-    var current_time = moment().format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
+//     var current_time = moment().format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
 
-    console.log(current_time + 'no UTC')
+//     console.log(current_time + 'no UTC')
 
 //original connection test (just to test connection since pool has no method)------------------------------
 // var con = mysql.createConnection({
@@ -45,6 +45,7 @@ const pool = mysql.createPool({
     user: "admin",
     password: "greenappl3",
     database : "geohut_sport",
+    timezone: 'utc',
     insecureAuth : true
   });
 
@@ -390,13 +391,14 @@ app.post('/preCheck',  cors(), (req, res) => {
 app.put('/update', cors(), (req, res) => {
 
     
+    
     var my_data = {
         site_id: req.query.site_id,
 
         user_id: req.query.user_id
        }
 
-       var sql = "UPDATE geohut_sport.check_ins SET checkout_datetime= '"+timestamp+"' where site_id = '"+my_data.site_id+"' and user_id = '"+my_data.user_id+"'";
+       var sql = "UPDATE geohut_sport.check_ins SET checkout_datetime= now() where site_id = '"+my_data.site_id+"' and user_id = '"+my_data.user_id+"'";
 
        pool.query(sql, function (err, result) {
         if (err) throw err;
@@ -556,22 +558,22 @@ app.post('/addFencing',  cors(), async (req, res) => {
 
 //Automatic removal 
 setInterval(() => {
-    console.log(moment().format("YYYY-MM-DD HH:mm:ss").substr(0, 18) + "0")
-    let timestamp = moment().format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
+    
+    // let time_now = moment().format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
+    // console.log(time_now + 'test')
 
 
-
-       pool.query("UPDATE geohut_sport.check_ins SET checkout_datetime= '"+timestamp+"' WHERE DATE_ADD(checkin_datetime, INTERVAL 3 HOUR) < '"+timestamp+"'", function (err, result) {
+       pool.query("UPDATE geohut_sport.check_ins SET checkout_datetime= now() WHERE DATE_ADD(checkin_datetime, INTERVAL 3 HOUR) < now()", function (err, result) {
         console.log('update')
         
         if (err) {throw err}
         else {
-            pool.query("INSERT INTO geohut_sport.check_ins_storage select * from geohut_sport.check_ins where DATE_ADD(checkin_datetime, INTERVAL 3 HOUR) < '"+timestamp+"'", function (err, results) {
+            pool.query("INSERT INTO geohut_sport.check_ins_storage select * from geohut_sport.check_ins where DATE_ADD(checkin_datetime, INTERVAL 3 HOUR) < now()", function (err, results) {
                 console.log('insert')
                 
                 if (err) {throw err}
                 else {
-                    pool.query("DELETE FROM geohut_sport.check_ins WHERE DATE_ADD(checkin_datetime, INTERVAL 3 HOUR) < '"+timestamp+"'", function (err, result) {
+                    pool.query("DELETE FROM geohut_sport.check_ins WHERE DATE_ADD(checkin_datetime, INTERVAL 3 HOUR) < now()", function (err, result) {
                         console.log('delete')
                  if (err) throw err;
                  console.log("Number of records deleted: " + result.affectedRows);
@@ -584,12 +586,12 @@ setInterval(() => {
 
 
 
-            pool.query("INSERT INTO geohut_sport.pre_check_ins_storage select * from geohut_sport.pre_check_ins where DATE_ADD(pre_checkin_datetime, INTERVAL 30 MINUTE) < '"+timestamp+"'", function (err, results) {
+            pool.query("INSERT INTO geohut_sport.pre_check_ins_storage select * from geohut_sport.pre_check_ins where DATE_ADD(pre_checkin_datetime, INTERVAL 30 MINUTE) < now()", function (err, results) {
                 console.log('insert pre')
                 
                 if (err) {throw err}
                 else {
-                    pool.query("DELETE FROM geohut_sport.pre_check_ins WHERE DATE_ADD(pre_checkin_datetime, INTERVAL 30 MINUTE) < '"+timestamp+"'", function (err, result) {
+                    pool.query("DELETE FROM geohut_sport.pre_check_ins WHERE DATE_ADD(pre_checkin_datetime, INTERVAL 30 MINUTE) < now()", function (err, result) {
                         console.log('delete pre')
                  if (err) throw err;
                  console.log("Number of records deleted: " + result.affectedRows);
@@ -608,7 +610,7 @@ setInterval(() => {
     
 
 
-  }, 300000);
+  }, 30000);
 
 
 
