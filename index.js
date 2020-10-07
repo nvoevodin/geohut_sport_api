@@ -85,6 +85,22 @@ app.get('/sites',  function(req,res){
 
 
 
+//request all construction sites
+app.get('/potential_sites',  function(req,res){
+    var sql = "SELECT * FROM geohut_sport.playgrounds_queue;";
+    pool.query(sql, function(err, results) {
+        if(err) {
+            return res.send(err)
+        } else {
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
+
+
+
 //request all checkins (temp)
 app.get('/players/:playgroundId',  function(req,res){
     var playgroundId = req.params.playgroundId;
