@@ -101,6 +101,30 @@ app.get('/potential_sites',  function(req,res){
 });
 
 
+app.put('/confirm_potential_sites',  function(req,res){
+    
+
+    var my_data = {
+        site_id: req.query.site_id
+       }
+
+       console.log(my_data)
+
+
+       var sql = "UPDATE geohut_sport.playgrounds_queue SET confirms = confirms + 1 where site_id = '"+my_data.site_id+"';";
+   
+    pool.query(sql, function(err, results) {
+        if(err) {
+            return res.send(err)
+        } else {
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
+
+
 
 //request all checkins (temp)
 app.get('/players/:playgroundId',  function(req,res){
@@ -598,6 +622,22 @@ setInterval(() => {
                 });
                 };
             });
+
+
+            pool.query("INSERT INTO geohut_sport.volleyball_playground_sites select * from geohut_sport.playgrounds_queue where confirms >= 5", 
+            function (err, results) {
+                console.log('insert pre playground')
+                
+                if (err) {throw err}
+                else {
+                    pool.query("Delete FROM geohut_sport.playgrounds_queue WHERE confirms >= 5", function (err, result) {
+                        console.log('delete pre playground')
+                 if (err) throw err;
+                 console.log("Number of records deleted: " + result.affectedRows);
+                }); 
+                }
+
+            })
         
         
      
@@ -610,7 +650,7 @@ setInterval(() => {
     
 
 
-  }, 30000);
+  }, 60000);
 
 
 
