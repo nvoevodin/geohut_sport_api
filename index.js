@@ -144,6 +144,30 @@ app.get('/players/:playgroundId',  function(req,res){
 });
 
 
+
+//request live court info
+app.get('/live_courts_info/:playgroundId',  function(req,res){
+    var playgroundId = req.params.playgroundId;
+    console.log(playgroundId)
+    var sql = "SELECT * FROM geohut_sport.live_courts_info where site_id = '"+playgroundId+"' ORDER BY report_datetime DESC LIMIT 1;";
+    pool.query(sql, function(err, results) {
+        if(err) {
+            console.log(res.send(err))
+            return res.send(err)
+
+        } else {
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
+
+
+
+
+
+
 app.get('/pre_checks/:playgroundId',  function(req,res){
     var playgroundId = req.params.playgroundId;
     var sql = "SELECT * FROM geohut_sport.pre_check_ins where site_id = '"+playgroundId+"';";
@@ -353,6 +377,32 @@ app.post('/add',  cors(), (req, res) => {
     });
 });
 
+
+//Report number of people
+app.post('/live_courts_info',  cors(), (req, res) => {
+    //current_time = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
+    var my_data = {
+        site_id: req.query.site_id,
+        
+        first_name: req.query.first_name,
+        last_name: req.query.last_name,
+        report_datetime: req.query.time,
+        count: req.query.count
+       }
+       // now the createStudent is an object you can use in your database insert logic.
+       pool.query('INSERT INTO geohut_sport.live_courts_info SET ?', my_data, function (err, results) {
+        if(err) {
+            console.log(err)
+            return res.send(err)
+            
+        } else {
+            console.log(results)
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
 
 
 //ADD PLAYGROUND
