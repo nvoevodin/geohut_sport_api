@@ -86,6 +86,79 @@ app.get('/sites',  function(req,res){
 
 
 
+//request all groups
+app.get('/get_groups/:playgroundId',  function(req,res){
+
+ 
+       var site_id = req.params.playgroundId;
+
+       console.log(site_id  + 'latet')
+
+    var sql = "SELECT * FROM geohut_sport.groups where playground_id = '"+site_id+"';";
+    pool.query(sql, function(err, results) {
+        if(err) {
+            return res.send(err)
+        } else {
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
+
+
+
+//request all groups
+app.get('/get_user/:uid',  function(req,res){
+
+ 
+    var uid = req.params.uid;
+
+    
+
+ var sql = "SELECT * FROM geohut_sport.user_table where uid = '"+uid+"';";
+ pool.query(sql, function(err, results) {
+     if(err) {
+         return res.send(err)
+     } else {
+         return res.json({
+             data: results
+         })
+     }
+ });
+});
+
+
+
+//request all groups
+app.get('/get_group_members/:group_id',  function(req,res){
+
+ 
+    var group_id = req.params.group_id;
+
+    console.log(group_id)
+
+ var sql = "SELECT JSON_EXTRACT(members, '$') FROM geohut_sport.groups where group_id = '"+group_id+"';";
+ pool.query(sql, function(err, results) {
+     if(err) {
+         console.log(err)
+     } else {
+         console.log(results)
+        return res.json({
+            data: results
+        })
+       
+     }
+ });
+});
+
+
+
+
+
+
+
+
 //request all construction sites
 app.get('/potential_sites',  function(req,res){
     var sql = "SELECT * FROM geohut_sport.playgrounds_queue;";
@@ -378,6 +451,61 @@ app.post('/add',  cors(), (req, res) => {
 });
 
 
+//add user to database
+app.post('/new_user',  cors(), (req, res) => {
+    //current_time = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
+    var my_data = {
+        uid: req.query.uid,
+        first_name: req.query.first_name,
+        last_name: req.query.last_name,
+        email: req.query.email,
+        datetime_stamp:req.query.datetime_stamp
+       }
+       // now the createStudent is an object you can use in your database insert logic.
+       pool.query('INSERT INTO geohut_sport.user_table SET ?', my_data, function (err, results) {
+        if(err) {
+            console.log(err)
+            return res.send(err)
+            
+        } else {
+            console.log(results)
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
+
+
+//ADD GROUP
+app.post('/addGroup',  cors(), (req, res) => {
+    //current_time = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
+    var my_data = {
+        
+        
+        admin_id: req.query.admin_id,
+        playground_id: req.query.playground_id,
+        group_name: req.query.group_name,
+        password: req.query.password,
+        member: req.query.member
+       }
+
+       // now the createStudent is an object you can use in your database insert logic.
+       pool.query("INSERT INTO geohut_sport.groups (group_id,admin_id,playground_id,group_name,password,members) values (uuid(),'"+my_data.admin_id+"','"+my_data.playground_id+"','"+my_data.group_name+"','"+my_data.password+"','["+my_data.member+"]')", function (err, results) {
+        if(err) {
+            console.log(err)
+            return res.send(err)
+            
+        } else {
+            console.log(results)
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
+
+
 //Report number of people
 app.post('/live_courts_info',  cors(), (req, res) => {
     //current_time = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
@@ -473,6 +601,26 @@ app.put('/update', cors(), (req, res) => {
        }
 
        var sql = "UPDATE geohut_sport.check_ins SET checkout_datetime= now() where site_id = '"+my_data.site_id+"' and user_id = '"+my_data.user_id+"'";
+
+       pool.query(sql, function (err, result) {
+        if (err) throw err;
+        res.end(JSON.stringify(result));
+      });
+ });
+
+//add group members
+ app.put('/add_group_members', cors(), (req, res) => {
+
+    
+    
+    var my_data = {
+        group_id: req.query.group_id,
+
+        user_id: req.query.user_id
+       }
+
+       
+       var sql = "update geohut_sport.groups set members = json_array_append(members, '$','"+my_data.user_id+"') where group_id = '"+my_data.group_id+"'";
 
        pool.query(sql, function (err, result) {
         if (err) throw err;
