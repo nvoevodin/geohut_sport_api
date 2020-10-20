@@ -108,7 +108,7 @@ app.get('/get_groups/:playgroundId',  function(req,res){
 
 
 
-//request all groups
+//get 1 users
 app.get('/get_user/:uid',  function(req,res){
 
  
@@ -128,6 +128,29 @@ app.get('/get_user/:uid',  function(req,res){
  });
 });
 
+
+//get all users in group
+app.get('/get_users/:uids',  function(req,res){
+
+    //JSON.parse(res.data)
+    var uids = JSON.parse(req.params.uids);
+    
+    console.log(uids)
+
+    
+
+ var sql = 'SELECT * FROM geohut_sport.user_table where email IN (?);';
+ pool.query(sql, [uids], function(err, results) {
+     if(err) {
+         return res.send(err)
+     } else {
+         //console.log(results)
+         return res.json({
+             data: results
+         })
+     }
+ });
+});
 
 
 //request all groups
