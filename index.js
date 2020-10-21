@@ -514,7 +514,7 @@ app.post('/addGroup',  cors(), (req, res) => {
        }
 
        // now the createStudent is an object you can use in your database insert logic.
-       pool.query("INSERT INTO geohut_sport.groups (group_id,admin_id,playground_id,group_name,password,members) values (uuid(),'"+my_data.admin_id+"','"+my_data.playground_id+"','"+my_data.group_name+"','"+my_data.password+"','["+my_data.member+"]')", function (err, results) {
+       pool.query("INSERT INTO geohut_sport.groups (group_id,admin_id,playground_id,group_name,password,members) values (uuid(),'"+my_data.admin_id+"','"+my_data.playground_id+"','"+my_data.group_name+"','"+my_data.password+"','["+JSON.stringify(my_data.member)+"]')", function (err, results) {
         if(err) {
             console.log(err)
             return res.send(err)
