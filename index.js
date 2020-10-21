@@ -653,6 +653,28 @@ app.put('/update', cors(), (req, res) => {
 
 
 
+ //add group members
+ app.put('/remove_group_members', cors(), (req, res) => {
+
+    
+    
+    var my_data = {
+        group_id: req.query.group_id,
+
+        user_id: req.query.user_id
+       }
+
+       var sql = "UPDATE geohut_sport.groups SET members = JSON_REMOVE(members, JSON_UNQUOTE(JSON_SEARCH(members,'one', '"+my_data.user_id+"'))) WHERE JSON_SEARCH(members,'one', '"+my_data.user_id+"') IS NOT NULL and group_id = '"+my_data.group_id+"'"
+       
+//var sql = "update geohut_sport.groups set members = json_array_append(members, '$','"+my_data.user_id+"') where group_id = '"+my_data.group_id+"'";
+
+       pool.query(sql, function (err, result) {
+        if (err) throw err;
+        res.end(JSON.stringify(result));
+      });
+ });
+
+
 
 
  //POST TO DATABASE
