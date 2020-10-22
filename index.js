@@ -510,11 +510,12 @@ app.post('/addGroup',  cors(), (req, res) => {
         playground_id: req.query.playground_id,
         group_name: req.query.group_name,
         password: req.query.password,
-        member: req.query.member
+        member: req.query.member,
+        waiting: req.query.waiting
        }
 
        // now the createStudent is an object you can use in your database insert logic.
-       pool.query("INSERT INTO geohut_sport.groups (group_id,admin_id,playground_id,group_name,password,members) values (uuid(),'"+my_data.admin_id+"','"+my_data.playground_id+"','"+my_data.group_name+"','"+my_data.password+"','["+JSON.stringify(my_data.member)+"]')", function (err, results) {
+       pool.query("INSERT INTO geohut_sport.groups (group_id,admin_id,playground_id,group_name,password,members,waiting) values (uuid(),'"+my_data.admin_id+"','"+my_data.playground_id+"','"+my_data.group_name+"','"+my_data.password+"','["+JSON.stringify(my_data.member)+"]','["+JSON.stringify(my_data.waiting)+"]')", function (err, results) {
         if(err) {
             console.log(err)
             return res.send(err)
@@ -526,6 +527,25 @@ app.post('/addGroup',  cors(), (req, res) => {
             })
         }
     });
+});
+
+//Remove records
+app.delete('/deleteGroup',  cors(), (req, res) => {
+    //current_time = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
+
+    var my_data = {
+        
+        
+        group_id: req.query.group_id
+
+       }
+  
+       // now the createStudent is an object you can use in your database insert logic.
+       var sql = "DELETE FROM geohut_sport.groups WHERE group_id = '"+my_data.group_id+"'";
+       pool.query(sql, function (err, result) {
+    if (err) throw err;
+    console.log("Number of records deleted: " + result.affectedRows);
+  });
 });
 
 
@@ -644,6 +664,27 @@ app.put('/update', cors(), (req, res) => {
 
        
        var sql = "update geohut_sport.groups set members = json_array_append(members, '$','"+my_data.user_id+"') where group_id = '"+my_data.group_id+"'";
+
+       pool.query(sql, function (err, result) {
+        if (err) throw err;
+        res.end(JSON.stringify(result));
+      });
+ });
+
+
+ //add to waitlist
+ app.put('/add_to_waitlist', cors(), (req, res) => {
+
+    
+    
+    var my_data = {
+        group_id: req.query.group_id,
+
+        user_id: req.query.user_id
+       }
+
+       
+       var sql = "update geohut_sport.groups set waiting = json_array_append(waiting, '$','"+my_data.user_id+"') where group_id = '"+my_data.group_id+"'";
 
        pool.query(sql, function (err, result) {
         if (err) throw err;
