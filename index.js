@@ -161,7 +161,7 @@ app.get('/get_group_members/:group_id',  function(req,res){
 
     console.log(group_id)
 
- var sql = "SELECT JSON_EXTRACT(members, '$') FROM geohut_sport.groups where group_id = '"+group_id+"';";
+ var sql = "SELECT JSON_EXTRACT(members, '$'), JSON_EXTRACT(waiting, '$') FROM geohut_sport.groups where group_id = '"+group_id+"';";
  pool.query(sql, function(err, results) {
      if(err) {
          console.log(err)
@@ -651,6 +651,31 @@ app.put('/update', cors(), (req, res) => {
       });
  });
 
+
+
+ app.put('/update_user_info', cors(), (req, res) => {
+
+    
+    
+    var my_data = {
+        first_name: req.query.first_name,
+
+        last_name: req.query.last_name,
+        uid: req.query.uid
+        
+
+       }
+
+       var sql = "UPDATE geohut_sport.user_table SET first_name= '"+my_data.first_name+"', last_name= '"+my_data.last_name+"' where uid = '"+my_data.uid+"'";
+
+       pool.query(sql, function (err, result) {
+        if (err) throw err;
+        res.end(JSON.stringify(result));
+      });
+ });
+
+
+
 //add group members
  app.put('/add_group_members', cors(), (req, res) => {
 
@@ -694,7 +719,7 @@ app.put('/update', cors(), (req, res) => {
 
 
 
- //add group members
+ //remove group members
  app.put('/remove_group_members', cors(), (req, res) => {
 
     
@@ -714,6 +739,29 @@ app.put('/update', cors(), (req, res) => {
         res.end(JSON.stringify(result));
       });
  });
+
+  //remove from waitlist
+  app.put('/remove_from_waitlist', cors(), (req, res) => {
+
+    
+    
+    var my_data = {
+        group_id: req.query.group_id,
+
+        user_id: req.query.user_id
+       }
+
+       var sql = "UPDATE geohut_sport.groups SET waiting = JSON_REMOVE(waiting, JSON_UNQUOTE(JSON_SEARCH(waiting,'one', '"+my_data.user_id+"'))) WHERE JSON_SEARCH(waiting,'one', '"+my_data.user_id+"') IS NOT NULL and group_id = '"+my_data.group_id+"'"
+       
+//var sql = "update geohut_sport.groups set members = json_array_append(members, '$','"+my_data.user_id+"') where group_id = '"+my_data.group_id+"'";
+
+       pool.query(sql, function (err, result) {
+        if (err) throw err;
+        res.end(JSON.stringify(result));
+      });
+ });
+
+ 
 
 
 
