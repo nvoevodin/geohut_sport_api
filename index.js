@@ -92,7 +92,7 @@ app.get('/get_groups/:playgroundId',  function(req,res){
  
        var site_id = req.params.playgroundId;
 
-       console.log(site_id  + 'latet')
+      
 
     var sql = "SELECT * FROM geohut_sport.groups where playground_id = '"+site_id+"';";
     pool.query(sql, function(err, results) {
@@ -135,7 +135,7 @@ app.get('/get_users/:uids',  function(req,res){
     //JSON.parse(res.data)
     var uids = JSON.parse(req.params.uids);
     
-    console.log(uids)
+ 
 
     
 
@@ -159,9 +159,9 @@ app.get('/get_group_members/:group_id',  function(req,res){
  
     var group_id = req.params.group_id;
 
-    console.log(group_id)
+  
 
- var sql = "SELECT JSON_EXTRACT(members, '$'), JSON_EXTRACT(waiting, '$') FROM geohut_sport.groups where group_id = '"+group_id+"';";
+ var sql = "SELECT JSON_EXTRACT(members, '$'), JSON_EXTRACT(waiting, '$'), JSON_EXTRACT(invited, '$') FROM geohut_sport.groups where group_id = '"+group_id+"';";
  pool.query(sql, function(err, results) {
      if(err) {
          console.log(err)
@@ -204,7 +204,7 @@ app.put('/confirm_potential_sites',  function(req,res){
         site_id: req.query.site_id
        }
 
-       console.log(my_data)
+   
 
 
        var sql = "UPDATE geohut_sport.playgrounds_queue SET confirms = confirms + 1 where site_id = '"+my_data.site_id+"';";
@@ -228,7 +228,7 @@ app.get('/players/:playgroundId',  function(req,res){
     var sql = "SELECT * FROM geohut_sport.check_ins where site_id = '"+playgroundId+"';";
     pool.query(sql, function(err, results) {
         if(err) {
-            console.log(res.send(err))
+          
             return res.send(err)
 
         } else {
@@ -244,11 +244,11 @@ app.get('/players/:playgroundId',  function(req,res){
 //request live court info
 app.get('/live_courts_info/:playgroundId',  function(req,res){
     var playgroundId = req.params.playgroundId;
-    console.log(playgroundId)
+
     var sql = "SELECT * FROM geohut_sport.live_courts_info where site_id = '"+playgroundId+"' ORDER BY report_datetime DESC LIMIT 1;";
     pool.query(sql, function(err, results) {
         if(err) {
-            console.log(res.send(err))
+        
             return res.send(err)
 
         } else {
@@ -269,7 +269,7 @@ app.get('/pre_checks/:playgroundId',  function(req,res){
     var sql = "SELECT * FROM geohut_sport.pre_check_ins where site_id = '"+playgroundId+"';";
     pool.query(sql, function(err, results) {
         if(err) {
-            console.log(res.send(err))
+        
             return res.send(err)
 
         } else {
@@ -323,7 +323,7 @@ app.get('/pre_checks/:playgroundId',  function(req,res){
  //pull historical checkins in profile by user id
  app.get('/checkincheck/:uid',  cors(),function(req,res){
     var uid = req.params.uid;
-    console.log(uid)
+   
     var sql = "SELECT site_id, checkin_datetime FROM geohut_sport.check_ins WHERE user_id = '"+uid+"' ORDER BY checkin_datetime DESC LIMIT 10";
     pool.query(sql, uid, function(err, results) {
         if(err) {
@@ -500,6 +500,28 @@ app.post('/new_user',  cors(), (req, res) => {
 });
 
 
+//Remove records
+app.delete('/delete_user',  cors(), (req, res) => {
+    //current_time = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
+
+    var my_data = {
+        
+        
+        uid: req.query.uid
+
+       }
+
+       console.log(my_data.uid)
+  
+       // now the createStudent is an object you can use in your database insert logic.
+       var sql = "DELETE FROM geohut_sport.user_table WHERE uid = '"+my_data.uid+"'";
+       pool.query(sql, function (err, result) {
+    if (err) throw err;
+    console.log("Number of records deleted: " + result.affectedRows);
+  });
+});
+
+
 //ADD GROUP
 app.post('/addGroup',  cors(), (req, res) => {
     //current_time = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
@@ -509,13 +531,14 @@ app.post('/addGroup',  cors(), (req, res) => {
         admin_id: req.query.admin_id,
         playground_id: req.query.playground_id,
         group_name: req.query.group_name,
-        password: req.query.password,
+        status: req.query.status,
         member: req.query.member,
-        waiting: req.query.waiting
+        waiting: req.query.waiting,
+        invited: req.query.invited
        }
 
        // now the createStudent is an object you can use in your database insert logic.
-       pool.query("INSERT INTO geohut_sport.groups (group_id,admin_id,playground_id,group_name,password,members,waiting) values (uuid(),'"+my_data.admin_id+"','"+my_data.playground_id+"','"+my_data.group_name+"','"+my_data.password+"','["+JSON.stringify(my_data.member)+"]','["+JSON.stringify(my_data.waiting)+"]')", function (err, results) {
+       pool.query("INSERT INTO geohut_sport.groups (group_id,admin_id,playground_id,group_name,status,members,waiting,invited) values (uuid(),'"+my_data.admin_id+"','"+my_data.playground_id+"','"+my_data.group_name+"','"+my_data.status+"','["+JSON.stringify(my_data.member)+"]','["+JSON.stringify(my_data.waiting)+"]','["+JSON.stringify(my_data.invited)+"]')", function (err, results) {
         if(err) {
             console.log(err)
             return res.send(err)
@@ -595,7 +618,7 @@ app.post('/addPlayground',  cors(), (req, res) => {
             return res.send(err)
             
         } else {
-            console.log(results)
+          
             return res.json({
                 data: results
             })
@@ -621,7 +644,7 @@ app.post('/preCheck',  cors(), (req, res) => {
             return res.send(err)
             
         } else {
-            console.log(results)
+            
             return res.json({
                 data: results
             })
@@ -717,6 +740,27 @@ app.put('/update', cors(), (req, res) => {
       });
  });
 
+ //Invite group members
+
+ app.put('/invite_group_members', cors(), (req, res) => {
+
+    
+    
+    var my_data = {
+        group_id: req.query.group_id,
+
+        user_id: req.query.user_id
+       }
+
+       
+       var sql = "update geohut_sport.groups set invited = json_array_append(invited, '$','"+my_data.user_id+"') where group_id = '"+my_data.group_id+"'";
+
+       pool.query(sql, function (err, result) {
+        if (err) throw err;
+        res.end(JSON.stringify(result));
+      });
+ });
+
 
 
  //remove group members
@@ -761,6 +805,29 @@ app.put('/update', cors(), (req, res) => {
       });
  });
 
+
+
+   //remove from invited
+   app.put('/remove_from_invited', cors(), (req, res) => {
+
+    
+    
+    var my_data = {
+        group_id: req.query.group_id,
+
+        user_id: req.query.user_id
+       }
+
+       var sql = "UPDATE geohut_sport.groups SET invited = JSON_REMOVE(invited, JSON_UNQUOTE(JSON_SEARCH(invited,'one', '"+my_data.user_id+"'))) WHERE JSON_SEARCH(invited,'one', '"+my_data.user_id+"') IS NOT NULL and group_id = '"+my_data.group_id+"'"
+       
+//var sql = "update geohut_sport.groups set members = json_array_append(members, '$','"+my_data.user_id+"') where group_id = '"+my_data.group_id+"'";
+
+       pool.query(sql, function (err, result) {
+        if (err) throw err;
+        res.end(JSON.stringify(result));
+      });
+ });
+
  
 
 
@@ -783,7 +850,7 @@ app.post('/addToStorage',  cors(), async (req, res) => {
             return res.send(err)
             
         } else {
-            console.log(results)
+        
             return res.json({
                 data: results
             })
@@ -862,7 +929,7 @@ app.post('/addTracking',  cors(), async (req, res) => {
             return res.send(err)
             
         } else {
-            console.log(results)
+            
             return res.json({
                 data: results
             })
@@ -901,7 +968,7 @@ app.post('/addFencing',  cors(), async (req, res) => {
             return res.send(err)
             
         } else {
-            console.log(results)
+       
             return res.json({
                 data: results
             })
