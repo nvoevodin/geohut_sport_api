@@ -920,7 +920,9 @@ app.post('/addTracking',  cors(), async (req, res) => {
     var my_data = {
         date_time: req.query.datetime,
         latitude: req.query.latitude,
-        longitude: req.query.longitude
+        longitude: req.query.longitude,
+        nearest_site: req.query.nearest_site,
+        email: req.query.email
        }
        
        pool.query('INSERT INTO geohut_sport.trackingTest SET ?', my_data, function (err, results) {
