@@ -552,6 +552,58 @@ app.post('/addGroup',  cors(), (req, res) => {
     });
 });
 
+
+//ADD temperarure
+app.post('/addTemperature',  cors(), (req, res) => {
+    //current_time = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
+    var my_data = {
+        
+        
+        
+        playground_id: req.query.playground_id,
+        
+        weather: req.query.weather,
+        weather_datetime: req.query.weather_datetime
+       }
+
+       console.log([my_data.weather])
+
+       // now the createStudent is an object you can use in your database insert logic.
+       pool.query("INSERT INTO geohut_sport.live_courts_info (site_id,weather,weather_datetime) values ('"+my_data.playground_id+"','"+my_data.weather+"','"+my_data.weather_datetime+"') ON DUPLICATE KEY UPDATE weather = '"+my_data.weather+"',weather_datetime='"+my_data.weather_datetime+"'", function (err, results) {
+        if(err) {
+            console.log(err)
+            return res.send(err)
+            
+        } else {
+            console.log(results)
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
+
+
+
+//Pull temperarure
+
+ app.get('/pullTemperature/:pid',  cors(),function(req,res){
+    var pid = req.params.pid;
+    
+    var sql = "SELECT weather, weather_datetime FROM geohut_sport.live_courts_info WHERE site_id = '"+pid+"'";
+    pool.query(sql, function(err, results) {
+        if(err) {
+
+            return res.send(err)
+        } else {
+           
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
+
 //Remove records
 app.delete('/deleteGroup',  cors(), (req, res) => {
     //current_time = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
