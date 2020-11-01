@@ -636,7 +636,8 @@ app.post('/live_courts_info',  cors(), (req, res) => {
         count: req.query.count
        }
        // now the createStudent is an object you can use in your database insert logic.
-       pool.query('INSERT INTO geohut_sport.live_courts_info SET ?', my_data, function (err, results) {
+     
+       pool.query("INSERT INTO geohut_sport.live_courts_info (site_id,first_name,last_name,report_datetime,count) values ('"+my_data.site_id+"','"+my_data.first_name+"','"+my_data.last_name+"','"+my_data.report_datetime+"','"+my_data.count+"') ON DUPLICATE KEY UPDATE first_name = '"+my_data.first_name+"',last_name='"+my_data.last_name+"', report_datetime = '"+my_data.report_datetime+"',count='"+my_data.count+"'", function (err, results) {
         if(err) {
             console.log(err)
             return res.send(err)
