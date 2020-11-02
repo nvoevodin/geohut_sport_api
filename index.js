@@ -951,7 +951,7 @@ app.delete('/cancelPreCheck',  cors(), (req, res) => {
 });
 
 
-//request all tracking info
+//request all tracking info FOR TEST TABLE
 app.get('/tracking',  cors(), function(req,res){
     var sql = "SELECT * FROM geohut_sport.trackingTest ORDER BY date_time LIMIT 10;";
     pool.query(sql, function(err, results) {
@@ -964,6 +964,35 @@ app.get('/tracking',  cors(), function(req,res){
         }
     });
 });
+
+//post  all tracking info
+app.post('/addTrackingGlobal',  cors(), async (req, res) => {
+
+
+    let timestamp = moment().format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
+    var my_data = {
+        date_time: req.query.datetime,
+        latitude: req.query.latitude,
+        longitude: req.query.longitude,
+        nearest_site: req.query.nearest_site,
+        email: req.query.email,
+        distance: req.query.distance
+       }
+       
+       pool.query('INSERT INTO geohut_sport.trackingGlobal SET ?', my_data, function (err, results) {
+        if(err) {
+            console.log(err)
+            return res.send(err)
+            
+        } else {
+            
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
+
 
 //post  all tracking info
 app.post('/addTracking',  cors(), async (req, res) => {
