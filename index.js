@@ -1042,17 +1042,17 @@ setInterval(() => {
     // console.log(time_now + 'test')
 
 
-       pool.query("UPDATE geohut_sport.check_ins SET checkout_datetime= now() WHERE DATE_ADD(checkin_datetime, INTERVAL 3 HOUR) < now()", function (err, result) {
+       pool.query("UPDATE geohut_sport.check_ins SET checkout_datetime= now() WHERE DATE_ADD(checkin_datetime, INTERVAL 1 HOUR) < now()", function (err, result) {
         console.log('update')
         
         if (err) {throw err}
         else {
-            pool.query("INSERT INTO geohut_sport.check_ins_storage select * from geohut_sport.check_ins where DATE_ADD(checkin_datetime, INTERVAL 3 HOUR) < now()", function (err, results) {
+            pool.query("INSERT INTO geohut_sport.check_ins_storage select * from geohut_sport.check_ins where DATE_ADD(checkin_datetime, INTERVAL 1 HOUR) < now()", function (err, results) {
                 console.log('insert')
                 
                 if (err) {throw err}
                 else {
-                    pool.query("DELETE FROM geohut_sport.check_ins WHERE DATE_ADD(checkin_datetime, INTERVAL 3 HOUR) < now()", function (err, result) {
+                    pool.query("DELETE FROM geohut_sport.check_ins WHERE DATE_ADD(checkin_datetime, INTERVAL 1 HOUR) < now()", function (err, result) {
                         console.log('delete')
                  if (err) throw err;
                  console.log("Number of records deleted: " + result.affectedRows);
