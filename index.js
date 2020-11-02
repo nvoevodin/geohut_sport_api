@@ -966,10 +966,7 @@ app.get('/tracking',  cors(), function(req,res){
 });
 
 //post  all tracking info
-app.post('/addTrackingGlobal',  cors(), async (req, res) => {
-
-
-    let timestamp = moment().format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
+app.post('/addGlobal',  cors(), async (req, res) => {
     var my_data = {
         date_time: req.query.datetime,
         latitude: req.query.latitude,
@@ -977,15 +974,12 @@ app.post('/addTrackingGlobal',  cors(), async (req, res) => {
         nearest_site: req.query.nearest_site,
         email: req.query.email,
         distance: req.query.distance
-       }
-       
+       }      
        pool.query('INSERT INTO geohut_sport.trackingGlobal SET ?', my_data, function (err, results) {
         if(err) {
             console.log(err)
-            return res.send(err)
-            
-        } else {
-            
+            return res.send(err)    
+        } else { 
             return res.json({
                 data: results
             })
