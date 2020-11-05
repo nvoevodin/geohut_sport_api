@@ -1119,7 +1119,7 @@ setInterval(() => {
 
 
 
-            pool.query("Delete FROM geohut_sport.live_courts_info WHERE DATE_ADD(report_datetime, INTERVAL 1 HOUR) < now()", function (err, result) {
+            pool.query("Delete FROM geohut_sport.live_courts_info WHERE DATE_ADD(report_datetime, INTERVAL 2 HOUR) < now()", function (err, result) {
                 console.log('deleted live courts data')
          if (err) throw err;
          console.log("Number of records deleted: " + result.affectedRows);
