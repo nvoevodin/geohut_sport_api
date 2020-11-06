@@ -70,6 +70,20 @@ app.get('/', (req, res) => res.send('I hope we make it through coronavirus . . .
 //     });
 // });
 
+//request app status
+app.get('/app_status',  function(req,res){
+    var sql = "SELECT * FROM geohut_sport.app_status;";
+    pool.query(sql, function(err, results) {
+        if(err) {
+            return res.send(err)
+        } else {
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
+
 //request all construction sites
 app.get('/sites',  function(req,res){
     var sql = "SELECT * FROM geohut_sport.volleyball_playground_sites;";
