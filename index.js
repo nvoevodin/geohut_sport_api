@@ -461,6 +461,28 @@ app.get('/pre_checks/:playgroundId',  function(req,res){
 //     });
 // });
 
+//POST LOCAL STORAGE ERROR
+app.post('/storageErrors', cors(), (req,res) => {
+    var my_data = {
+        key_value: req.query.key_value,
+        datetime: req.query.datetime,
+        error: req.query.error
+       }
+
+       pool.query('INSERT INTO geohut_sport.storageError SET ?', my_data, function (err, results) {
+        if(err) {
+            console.log(err)
+            return res.send(err)
+            
+        } else {
+            console.log(results)
+            return res.json({
+                data: results
+            })
+        }
+    });
+
+});
 
 //POST TO DATABASE
 app.post('/add',  cors(), (req, res) => {
