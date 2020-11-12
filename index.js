@@ -461,6 +461,29 @@ app.get('/pre_checks/:playgroundId',  function(req,res){
 //     });
 // });
 
+//POST LOCAL STORAGE ERROR
+app.post('/storageErrors', cors(), (req,res) => {
+    var my_data = {
+        key_value: req.query.key_value,
+        value: req.query.value,
+        datetime: req.query.datetime,
+        error: req.query.error
+       }
+
+       pool.query('INSERT INTO geohut_sport.storageError SET ?', my_data, function (err, results) {
+        if(err) {
+            console.log(err)
+            return res.send(err)
+            
+        } else {
+            console.log(results)
+            return res.json({
+                data: results
+            })
+        }
+    });
+
+});
 
 //POST TO DATABASE
 app.post('/add',  cors(), (req, res) => {
@@ -470,7 +493,9 @@ app.post('/add',  cors(), (req, res) => {
         checkin_datetime: req.query.time,
         first_name: req.query.first_name,
         last_name: req.query.last_name,
-        user_id: req.query.user_id
+        user_id: req.query.user_id,
+        checkin_type: req.query.checkin_type,
+        distance: req.query.distance
        }
        // now the createStudent is an object you can use in your database insert logic.
        pool.query('INSERT INTO geohut_sport.check_ins SET ?', my_data, function (err, results) {
