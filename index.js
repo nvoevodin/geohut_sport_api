@@ -470,7 +470,8 @@ app.post('/add',  cors(), (req, res) => {
         checkin_datetime: req.query.time,
         first_name: req.query.first_name,
         last_name: req.query.last_name,
-        user_id: req.query.user_id
+        user_id: req.query.user_id,
+        checkin_type: req.query.checkin_type
        }
        // now the createStudent is an object you can use in your database insert logic.
        pool.query('INSERT INTO geohut_sport.check_ins SET ?', my_data, function (err, results) {
