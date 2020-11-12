@@ -465,6 +465,7 @@ app.get('/pre_checks/:playgroundId',  function(req,res){
 app.post('/storageErrors', cors(), (req,res) => {
     var my_data = {
         key_value: req.query.key_value,
+        value: req.query.value,
         datetime: req.query.datetime,
         error: req.query.error
        }
