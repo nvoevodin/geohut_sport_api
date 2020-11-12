@@ -1099,6 +1099,22 @@ app.post('/addFencing',  cors(), async (req, res) => {
 
 //Automatic removal 
 setInterval(() => {
+
+    app.get('/allCheckedIn',  function(req,res){
+        var playgroundId = req.params.playgroundId;
+        var sql = "SELECT site_id, user_id FROM geohut_sport.check_ins;";
+        pool.query(sql, function(err, results) {
+            if(err) {
+              
+                return res.send(err)
+    
+            } else {
+                return res.json({
+                    data: results
+                })
+            }
+        });
+    });
     
     // let time_now = moment().format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
     // console.log(time_now + 'test')
