@@ -759,7 +759,7 @@ app.put('/update', cors(), (req, res) => {
         user_id: req.query.user_id
        }
 
-       var sql = "UPDATE geohut_sport.check_ins SET checkout_datetime= now(), distance = '"+my_data.distance+"', checkin_type = '"+my_data.checkin_type+"' where site_id = '"+my_data.site_id+"' and user_id = '"+my_data.user_id+"'";
+       var sql = "UPDATE geohut_sport.check_ins SET checkout_datetime= now(), checkout_distance = '"+my_data.distance+"', checkout_type = '"+my_data.checkin_type+"' where site_id = '"+my_data.site_id+"' and user_id = '"+my_data.user_id+"'";
 
        pool.query(sql, function (err, result) {
         if (err) throw err;
