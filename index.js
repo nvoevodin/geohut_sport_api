@@ -461,29 +461,7 @@ app.get('/pre_checks/:playgroundId',  function(req,res){
 //     });
 // });
 
-//POST LOCAL STORAGE ERROR
-app.post('/storageErrors', cors(), (req,res) => {
-    var my_data = {
-        key_value: req.query.key_value,
-        value: req.query.value,
-        datetime: req.query.datetime,
-        error: req.query.error
-       }
 
-       pool.query('INSERT INTO geohut_sport.storageError SET ?', my_data, function (err, results) {
-        if(err) {
-            console.log(err)
-            return res.send(err)
-            
-        } else {
-            console.log(results)
-            return res.json({
-                data: results
-            })
-        }
-    });
-
-});
 
 //POST TO DATABASE
 app.post('/add',  cors(), (req, res) => {
@@ -493,9 +471,7 @@ app.post('/add',  cors(), (req, res) => {
         checkin_datetime: req.query.time,
         first_name: req.query.first_name,
         last_name: req.query.last_name,
-        user_id: req.query.user_id,
-        checkin_type: req.query.checkin_type,
-        distance: req.query.distance
+        user_id: req.query.user_id
        }
        // now the createStudent is an object you can use in your database insert logic.
        pool.query('INSERT INTO geohut_sport.check_ins SET ?', my_data, function (err, results) {
@@ -754,12 +730,10 @@ app.put('/update', cors(), (req, res) => {
     
     var my_data = {
         site_id: req.query.site_id,
-        distance: req.query.distance,
-        checkin_type: req.query.checkin_type,
         user_id: req.query.user_id
        }
 
-       var sql = "UPDATE geohut_sport.check_ins SET checkout_datetime= now(), checkout_distance = '"+my_data.distance+"', checkout_type = '"+my_data.checkin_type+"' where site_id = '"+my_data.site_id+"' and user_id = '"+my_data.user_id+"'";
+       var sql = "UPDATE geohut_sport.check_ins SET checkout_datetime= now(), where site_id = '"+my_data.site_id+"' and user_id = '"+my_data.user_id+"'";
 
        pool.query(sql, function (err, result) {
         if (err) throw err;
@@ -1005,27 +979,7 @@ app.get('/tracking',  cors(), function(req,res){
     });
 });
 
-//post  all tracking info
-app.post('/addGlobal',  cors(), async (req, res) => {
-    var my_data = {
-        date_time: req.query.datetime,
-        latitude: req.query.latitude,
-        longitude: req.query.longitude,
-        nearest_site: req.query.nearest_site,
-        email: req.query.email,
-        distance: req.query.distance
-       }      
-       pool.query('INSERT INTO geohut_sport.trackingGlobal SET ?', my_data, function (err, results) {
-        if(err) {
-            console.log(err)
-            return res.send(err)    
-        } else { 
-            return res.json({
-                data: results
-            })
-        }
-    });
-});
+
 
 
 //post  all tracking info
@@ -1121,17 +1075,17 @@ setInterval(() => {
     // console.log(time_now + 'test')
 
 
-       pool.query("UPDATE geohut_sport.check_ins SET checkout_datetime= now() WHERE DATE_ADD(checkin_datetime, INTERVAL 20 MINUTE) < now()", function (err, result) {
+       pool.query("UPDATE geohut_sport.check_ins SET checkout_datetime= now() WHERE DATE_ADD(checkin_datetime, INTERVAL 4 HOUR) < now()", function (err, result) {
         console.log('update')
         
         if (err) {throw err}
         else {
-            pool.query("INSERT INTO geohut_sport.check_ins_storage select * from geohut_sport.check_ins where DATE_ADD(checkin_datetime, INTERVAL 20 MINUTE) < now()", function (err, results) {
+            pool.query("INSERT INTO geohut_sport.check_ins_storage select * from geohut_sport.check_ins where DATE_ADD(checkin_datetime, INTERVAL 4 HOUR) < now()", function (err, results) {
                 console.log('insert')
                 
                 if (err) {throw err}
                 else {
-                    pool.query("DELETE FROM geohut_sport.check_ins WHERE DATE_ADD(checkin_datetime, INTERVAL 20 MINUTE) < now()", function (err, result) {
+                    pool.query("DELETE FROM geohut_sport.check_ins WHERE DATE_ADD(checkin_datetime, INTERVAL 4 HOUR) < now()", function (err, result) {
                         console.log('delete')
                  if (err) throw err;
                  console.log("Number of records deleted: " + result.affectedRows);
