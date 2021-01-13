@@ -1198,16 +1198,22 @@ setInterval(() => {
          if (err) throw err;
          console.log("Number of records deleted: " + result.affectedRows);
         }); 
-        
-        
-     
 
 
 
+    app.get('/get_locations',  cors(), function(req,res){
+        var sql = "SELECT JSON_ARRAY(GROUP_CONCAT(distinct(city) SEPARATOR ',')) as cities, country as countries FROM geohut_sport.volleyball_playground_sites GROUP BY country;";
+        pool.query(sql, function(err, results) {
+            if(err) {
+                return res.send(err)
+            } else {
+                return res.json({
+                    data: results
+                })
+            }
+        });
+    });
 
-
-
-    
 
 
   }, 600000);
