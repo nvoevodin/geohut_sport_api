@@ -80,13 +80,14 @@ const pool = mysql.createPool({
         city: req.body.city,
         address: req.body.address,
         type: req.body.type,
+        description: req.body.description,
         lat: req.body.latitude,
         lon: req.body.longitude,
         image: req.file.path
        }
 
        // now the createStudent is an object you can use in your database insert logic.
-       pool.query("INSERT INTO geohut_sport.playgrounds_queue (site_id,site_name,country,city,site_address,type,latitude,longitude,image) values (uuid(),'"+my_data.name+"','"+my_data.country+"','"+my_data.city+"','"+my_data.address+"','"+my_data.lat+"','"+my_data.lon+"','"+my_data.image+"')", function (err, results) {
+       pool.query("INSERT INTO geohut_sport.playgrounds_queue (site_id,site_name,country,city,site_address,type,description,latitude,longitude,image) values (uuid(),'"+my_data.name+"','"+my_data.country+"','"+my_data.city+"','"+my_data.address+"','"+my_data.type+"','"+my_data.description+"','"+my_data.lat+"','"+my_data.lon+"','"+my_data.image+"')", function (err, results) {
         if(err) {
             console.log(err)
             return res.send(err)
