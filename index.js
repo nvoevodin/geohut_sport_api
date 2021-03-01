@@ -630,6 +630,7 @@ app.post('/addGroup',  cors(), (req, res) => {
 });
 
 
+
 //ADD temperarure
 app.post('/addTemperature',  cors(), (req, res) => {
     //current_time = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
@@ -1112,6 +1113,130 @@ app.post('/addFencing',  cors(), async (req, res) => {
         }
     });
 });
+
+
+//Events
+
+
+//ADD EVENT
+app.post('/addEvent',  cors(), (req, res) => {
+    //current_time = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
+    var my_data = {
+        
+        
+        admin_id: req.query.admin_id,
+        date: req.query.date,
+        time: req.query.time,
+        playground_id: req.query.playground_id,
+        event_name: req.query.group_name,
+        description: req.query.description,
+        mode: req.query.mode,
+        type: req.query.type,
+        member: req.query.member,
+        waiting: req.query.waiting,
+        invited: req.query.invited
+       }
+
+       // now the createStudent is an object you can use in your database insert logic.
+       pool.query("INSERT INTO geohut_sport.events (event_id, date, time, admin_id,playground_id,event_name,description, mode, type, members,waiting,invited) values (uuid(),'"+my_data.date+"','"+my_data.time+"','"+my_data.admin_id+"','"+my_data.playground_id+"','"+my_data.event_name+"','"+my_data.description+"','"+my_data.mode+"','"+my_data.type+"','["+JSON.stringify(my_data.member)+"]','["+JSON.stringify(my_data.waiting)+"]','["+JSON.stringify(my_data.invited)+"]')", function (err, results) {
+        if(err) {
+            console.log(err)
+            return res.send(err)
+            
+        } else {
+            console.log(results)
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
+
+
+app.get('/get_events/:playgroundId',  cors(), function(req,res){
+
+    var playgroundId = req.params.playgroundId;
+
+    var sql = "SELECT DATE(date) as date, CONCAT('[',GROUP_CONCAT(JSON_OBJECT('id', event_id,'time', time,'admin_id', admin_id,'playground_id', playground_id,'event_name', event_name,'description', description,'mode', mode,'type', type,'members', members,'waiting', waiting,'invited', invited)),']') AS list FROM geohut_sport.events where playground_id = '"+playgroundId+"' GROUP BY DATE(date) ORDER BY DATE(date)";
+    pool.query(sql, function(err, results) {
+        if(err) {
+            console.log(err)
+            return res.send(err)
+        } else {
+            return res.json({
+                data: results
+            })
+        }
+    });
+});
+
+
+//request all groups
+app.get('/get_event_members/:event_id',  function(req,res){
+
+ 
+    var event_id = req.params.event_id;
+
+  
+
+ var sql = "SELECT JSON_EXTRACT(members, '$'), JSON_EXTRACT(waiting, '$'), JSON_EXTRACT(invited, '$') FROM geohut_sport.events where event_id = '"+event_id+"';";
+ pool.query(sql, function(err, results) {
+     if(err) {
+         console.log(err)
+     } else {
+         console.log(results)
+        return res.json({
+            data: results
+        })
+       
+     }
+ });
+});
+
+
+
+app.put('/add_event_members', cors(), (req, res) => {
+
+    
+    
+    var my_data = {
+        event_id: req.query.event_id,
+
+        user_id: req.query.user_id
+       }
+
+       
+       var sql = "update geohut_sport.events set members = json_array_append(members, '$','"+my_data.user_id+"') where event_id = '"+my_data.event_id+"'";
+
+       pool.query(sql, function (err, result) {
+        if (err) throw err;
+        res.end(JSON.stringify(result));
+      });
+ });
+
+
+  //remove group members
+  app.put('/remove_event_members', cors(), (req, res) => {
+
+    
+    
+    var my_data = {
+        event_id: req.query.event_id,
+
+        user_id: req.query.user_id
+       }
+
+       var sql = "UPDATE geohut_sport.events SET members = JSON_REMOVE(members, JSON_UNQUOTE(JSON_SEARCH(members,'one', '"+my_data.user_id+"'))) WHERE JSON_SEARCH(members,'one', '"+my_data.user_id+"') IS NOT NULL and event_id = '"+my_data.event_id+"'"
+       
+//var sql = "update geohut_sport.groups set members = json_array_append(members, '$','"+my_data.user_id+"') where group_id = '"+my_data.group_id+"'";
+
+       pool.query(sql, function (err, result) {
+        if (err) throw err;
+        res.end(JSON.stringify(result));
+      });
+ });
+
+
 
 
 
