@@ -1,6 +1,6 @@
 const cors = require('cors');
 const express = require('express');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const moment = require('moment');
 const fs = require('fs')
 var multer  = require('multer')
@@ -56,14 +56,25 @@ let timestamp = moment().utc().format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0'
 //   });
 //----------------------------------------------------------
 
-//connection for database
+// //connection for database
+// const pool = mysql.createPool({
+//     host: "probobo.cgac79lt7rx0.us-east-2.rds.amazonaws.com",
+//     user: "admin",
+//     password: "greenappl3",
+//     database : "geohut_sport",
+//     timezone: 'utc',
+//     insecureAuth : true
+//   });
+
+  //connection for database
 const pool = mysql.createPool({
-    host: "probobo.cgac79lt7rx0.us-east-2.rds.amazonaws.com",
-    user: "admin",
-    password: "greenappl3",
+    //host : "mysql",  
+    host: '68.198.26.23',
+    user : "root",
+    password : "nv0ev0din",
     database : "geohut_sport",
-    timezone: 'utc',
-    insecureAuth : true
+    insecureAuth : true,
+    multipleStatements: true
   });
 
 
@@ -79,7 +90,9 @@ const pool = mysql.createPool({
         country: req.body.country,
         city: req.body.city,
         address: req.body.address,
+        phone: req.body.phone,
         type: req.body.type,
+        surface: req.body.surface,
         description: req.body.description,
         lat: req.body.latitude,
         lon: req.body.longitude,
@@ -87,7 +100,7 @@ const pool = mysql.createPool({
        }
 
        // now the createStudent is an object you can use in your database insert logic.
-       pool.query("INSERT INTO geohut_sport.playgrounds_queue (site_id,site_name,country,city,site_address,type,description,latitude,longitude,image) values (uuid(),'"+my_data.name+"','"+my_data.country+"','"+my_data.city+"','"+my_data.address+"','"+my_data.type+"','"+my_data.description+"','"+my_data.lat+"','"+my_data.lon+"','"+my_data.image+"')", function (err, results) {
+       pool.query("INSERT INTO geohut_sport.playgrounds_queue (site_id,site_name,country,city,site_address,phone,type,surface,description,latitude,longitude,image) values (uuid(),'"+my_data.name+"','"+my_data.country+"','"+my_data.city+"','"+my_data.address+"','"+my_data.phone+"','"+my_data.type+"','"+my_data.surface+"','"+my_data.description+"','"+my_data.lat+"','"+my_data.lon+"','"+my_data.image+"')", function (err, results) {
         if(err) {
             console.log(err)
             return res.send(err)
@@ -209,18 +222,19 @@ app.get('/get_user/:uid',  function(req,res){
 app.get('/get_users/:uids',  function(req,res){
 
     //JSON.parse(res.data)
-    var uids = JSON.parse(req.params.uids);
-    
+    var uids = req.params.uids.split(",");
+   
+    //console.log(uids.split(","))
  
 
     
 
- var sql = 'SELECT * FROM geohut_sport.user_table where email IN (?);';
+ var sql = 'SELECT * FROM geohut_sport.user_table where uid IN (?);';
  pool.query(sql, [uids], function(err, results) {
      if(err) {
          return res.send(err)
      } else {
-         //console.log(results)
+         console.log(results)
          return res.json({
              data: results
          })
@@ -1128,7 +1142,7 @@ app.post('/addEvent',  cors(), (req, res) => {
         date: req.query.date,
         time: req.query.time,
         playground_id: req.query.playground_id,
-        event_name: req.query.group_name,
+        event_name: req.query.event_name,
         description: req.query.description,
         mode: req.query.mode,
         type: req.query.type,
@@ -1136,6 +1150,8 @@ app.post('/addEvent',  cors(), (req, res) => {
         waiting: req.query.waiting,
         invited: req.query.invited
        }
+
+    
 
        // now the createStudent is an object you can use in your database insert logic.
        pool.query("INSERT INTO geohut_sport.events (event_id, date, time, admin_id,playground_id,event_name,description, mode, type, members,waiting,invited) values (uuid(),'"+my_data.date+"','"+my_data.time+"','"+my_data.admin_id+"','"+my_data.playground_id+"','"+my_data.event_name+"','"+my_data.description+"','"+my_data.mode+"','"+my_data.type+"','["+JSON.stringify(my_data.member)+"]','["+JSON.stringify(my_data.waiting)+"]','["+JSON.stringify(my_data.invited)+"]')", function (err, results) {
@@ -1153,6 +1169,25 @@ app.post('/addEvent',  cors(), (req, res) => {
 });
 
 
+app.delete('/deleteEvent',  cors(), (req, res) => {
+    //current_time = moment().utcOffset('-0400').format("YYYY-MM-DD HH:mm:ss").substr(0,18)+'0';
+
+    var my_data = {
+        
+        
+        event_id: req.query.event_id
+
+       }
+  
+       // now the createStudent is an object you can use in your database insert logic.
+       var sql = "DELETE FROM geohut_sport.events WHERE event_id = '"+my_data.event_id+"'";
+       pool.query(sql, function (err, result) {
+    if (err) throw err;
+    console.log("Number of records deleted: " + result.affectedRows);
+  });
+});
+
+
 app.get('/get_events/:playgroundId',  cors(), function(req,res){
 
     var playgroundId = req.params.playgroundId;
@@ -1163,6 +1198,7 @@ app.get('/get_events/:playgroundId',  cors(), function(req,res){
             console.log(err)
             return res.send(err)
         } else {
+            console.log(results)
             return res.json({
                 data: results
             })
@@ -1226,6 +1262,8 @@ app.put('/add_event_members', cors(), (req, res) => {
         user_id: req.query.user_id
        }
 
+       
+
        var sql = "UPDATE geohut_sport.events SET members = JSON_REMOVE(members, JSON_UNQUOTE(JSON_SEARCH(members,'one', '"+my_data.user_id+"'))) WHERE JSON_SEARCH(members,'one', '"+my_data.user_id+"') IS NOT NULL and event_id = '"+my_data.event_id+"'"
        
 //var sql = "update geohut_sport.groups set members = json_array_append(members, '$','"+my_data.user_id+"') where group_id = '"+my_data.group_id+"'";
@@ -1287,12 +1325,23 @@ setInterval(() => {
 
 
 
-            pool.query("INSERT INTO geohut_sport.pre_check_ins_storage select * from geohut_sport.pre_check_ins where DATE_ADD(pre_checkin_datetime, INTERVAL 30 MINUTE) < now()", function (err, results) {
+            pool.query("INSERT INTO geohut_sport.pre_check_ins_storage select * from geohut_sport.pre_check_ins where DATE_ADD(STR_TO_DATE(pre_checkin_datetime,'%Y-%m-%dT%TZ'), INTERVAL 30 MINUTE) < now()", function (err, results) {
                 console.log('insert pre')
                 
-                if (err) {throw err}
+                // if (err.message.code === 'ETIMEDOUT') {
+                //     pool.query("INSERT INTO geohut_sport.pre_check_ins_storage select * from geohut_sport.pre_check_ins where DATE_ADD(pre_checkin_datetime, INTERVAL 30 MINUTE) < now()", function (err, results) {
+                //         console.log('second try')
+                        
+                        if (err) {
+                            console.log(err.message)
+                            throw err
+                        }
+                        
+                      //  })
+                
+                
                 else {
-                    pool.query("DELETE FROM geohut_sport.pre_check_ins WHERE DATE_ADD(pre_checkin_datetime, INTERVAL 30 MINUTE) < now()", function (err, result) {
+                    pool.query("DELETE FROM geohut_sport.pre_check_ins WHERE DATE_ADD(STR_TO_DATE(pre_checkin_datetime,'%Y-%m-%dT%TZ'), INTERVAL 30 MINUTE) < now()", function (err, result) {
                         console.log('delete pre')
                  if (err) throw err;
                  console.log("Number of records deleted: " + result.affectedRows);
@@ -1341,7 +1390,7 @@ setInterval(() => {
 
 
 
-  }, 600000);
+  }, 100000);
 
 
 
