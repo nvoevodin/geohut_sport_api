@@ -1282,7 +1282,7 @@ app.put('/add_event_members', cors(), (req, res) => {
 //Automatic removal 
 setInterval(() => {
 
-    pool.query("DELETE FROM geohut_sport.events WHERE DATE_ADD(STR_TO_DATE(pre_checkin_datetime,'%Y-%m-%dT%TZ'), INTERVAL 300 MINUTE) < now()", function (err, result) {
+    pool.query("DELETE FROM geohut_sport.events WHERE DATE_ADD(timestamp(DATE(date),time(time)), INTERVAL 300 MINUTE) < now()", function (err, result) {
         console.log('delete event')
  if (err) throw err;
  console.log("Number of records deleted: " + result.affectedRows);
