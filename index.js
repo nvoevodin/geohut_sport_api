@@ -1282,6 +1282,12 @@ app.put('/add_event_members', cors(), (req, res) => {
 //Automatic removal 
 setInterval(() => {
 
+    pool.query("DELETE FROM geohut_sport.events WHERE DATE_ADD(STR_TO_DATE(pre_checkin_datetime,'%Y-%m-%dT%TZ'), INTERVAL 300 MINUTE) < now()", function (err, result) {
+        console.log('delete event')
+ if (err) throw err;
+ console.log("Number of records deleted: " + result.affectedRows);
+});
+
     app.get('/allCheckedIn',  function(req,res){
         var playgroundId = req.params.playgroundId;
         var sql = "SELECT site_id, user_id FROM geohut_sport.check_ins;";
